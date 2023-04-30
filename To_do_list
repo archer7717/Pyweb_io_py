@@ -1,0 +1,54 @@
+from pywebio import *
+from pywebio import output,input
+
+def front_input_task(text):
+    with output.use_scope('Input'):
+        task = input.input(text, type=input.TEXT, placeholder='Add a task',
+            help_text='Submit or Reset', required=True)
+    return task
+
+def create_scope():
+    # Весь TodoList его scope
+    with output.use_scope('main'):
+
+        with output.use_scope('Table'):
+            #Создание пространства для таблицы
+            print("Scope Table create\n")
+
+        with output.use_scope('Input'):
+            print("Scope Input create\n")
+    return True
+
+def create_task(task: str,tdata: list):
+
+    button = output.put_button('Complete',onclick=lambda: delete_task(tdata,task)) 
+    tdata.append([task, button])
+
+    update_table(tdata)
+
+def delete_task(tdata: list,task: str):
+
+    for tasks in tdata:
+        print(f"Поиск task: {tasks.count(task)}  {tasks}")
+        if tasks.count(task)!=0:
+            tasks.clear()
+
+    update_table(tdata)
+
+def update_table(tdata):
+    with output.use_scope('Table',clear=True):
+        output.put_table(tdata)
+    
+def main():
+    text = 'What are you going to do today?'
+    tdata = [ [text, 'Actions'] ]
+    rez = ''
+    task = ''
+    
+    rez = create_scope()
+    while rez:
+        task = front_input_task(text)
+        create_task(task,tdata)
+        
+if __name__ == '__main__':
+    start_server(main, port=8080, debug=True)#запуск сервера
